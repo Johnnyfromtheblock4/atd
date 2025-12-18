@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import volontari from "../data/volontari.json";
 
 /* GIORNI */
 const giorniLavorativi = [
@@ -18,6 +19,14 @@ const giorniSettimana = [
   "Sabato",
   "Domenica",
 ];
+
+// Ore (00–23)
+const ore = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
+
+// Minuti (step 5)
+const minuti5 = Array.from({ length: 12 }, (_, i) =>
+  String(i * 5).padStart(2, "0")
+);
 
 /* UTILITIES */
 const getFascia = (orario) => {
@@ -57,12 +66,35 @@ const Homepage = () => {
     mezzo: "",
   });
 
+  const [searchAutista, setSearchAutista] = useState("");
+  const [searchAccompagnatore, setSearchAccompagnatore] = useState("");
+
+  const [showAutistaDropdown, setShowAutistaDropdown] = useState(false);
+  const [showAccompagnatoreDropdown, setShowAccompagnatoreDropdown] =
+    useState(false);
+
+  // Ore & Minuti selezionati
+  const [oraSel, setOraSel] = useState("");
+  const [minSel, setMinSel] = useState("");
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const aggiungiServizio = () => {
-    if (!form.orario || !form.giorno) return;
+    // VALIDAZIONE COMPLETA
+    if (
+      !form.giorno ||
+      !form.orario ||
+      !form.servizio ||
+      !form.localita ||
+      !form.autista ||
+      !form.accompagnatore ||
+      !form.mezzo
+    ) {
+      alert("Compila tutti i campi prima di aggiungere il servizio");
+      return;
+    }
 
     setServizi([
       ...servizi,
@@ -73,8 +105,9 @@ const Homepage = () => {
       },
     ]);
 
+    // RESET FORM
     setForm({
-      ...form,
+      giorno: "Lunedì",
       orario: "",
       servizio: "",
       localita: "",
@@ -82,6 +115,22 @@ const Homepage = () => {
       accompagnatore: "",
       mezzo: "",
     });
+
+    // RESET RICERCHE
+    setSearchAutista("");
+    setSearchAccompagnatore("");
+
+    // RESET ORA / MINUTI
+    setOraSel("");
+    setMinSel("");
+  };
+
+  // Ricerca autista / accompagnatore
+  const filtraVolontari = (lista, query) => {
+    if (!query) return [];
+    return lista.filter((v) =>
+      `${v.nome} ${v.cognome}`.toLowerCase().includes(query.toLowerCase())
+    );
   };
 
   return (
@@ -125,6 +174,7 @@ const Homepage = () => {
           <h5>Aggiungi servizio</h5>
 
           <div className="row g-2">
+            {/* Giorno */}
             <div className="col-md-2">
               <select
                 className="form-select"
@@ -138,18 +188,49 @@ const Homepage = () => {
               </select>
             </div>
 
+            {/* Ora */}
             <div className="col-md-2">
-              <input
-                type="time"
-                className="form-control"
-                name="orario"
-                min="06:00"
-                max="18:00"
-                value={form.orario}
-                onChange={handleChange}
-              />
+              <div className="d-flex gap-2">
+                <select
+                  className="form-select"
+                  value={oraSel}
+                  onChange={(e) => {
+                    const h = e.target.value;
+                    setOraSel(h);
+                    const mm = minSel || "00";
+                    setForm({ ...form, orario: h ? `${h}:${mm}` : "" });
+                  }}
+                >
+                  <option value="">Ora</option>
+                  {ore.map((h) => (
+                    <option key={h} value={h}>
+                      {h}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  className="form-select"
+                  value={minSel}
+                  onChange={(e) => {
+                    const mm = e.target.value;
+                    setMinSel(mm);
+                    const h = oraSel || "";
+                    setForm({ ...form, orario: h ? `${h}:${mm}` : "" });
+                  }}
+                  disabled={!oraSel}
+                >
+                  <option value="">Min</option>
+                  {minuti5.map((mm) => (
+                    <option key={mm} value={mm}>
+                      {mm}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
+            {/* Servizio */}
             <div className="col-md-2">
               <input
                 className="form-control"
@@ -160,6 +241,7 @@ const Homepage = () => {
               />
             </div>
 
+            {/* Località */}
             <div className="col-md-2">
               <input
                 className="form-control"
@@ -170,26 +252,84 @@ const Homepage = () => {
               />
             </div>
 
-            <div className="col-md-2">
+            {/* Autista */}
+            <div className="col-md-2 position-relative">
               <input
                 className="form-control"
-                name="autista"
                 placeholder="Autista"
-                value={form.autista}
-                onChange={handleChange}
+                value={searchAutista}
+                onChange={(e) => {
+                  setSearchAutista(e.target.value);
+                  setShowAutistaDropdown(true);
+                }}
+                onFocus={() => setShowAutistaDropdown(true)}
               />
+
+              {showAutistaDropdown && searchAutista && (
+                <div className="list-group position-absolute w-100 z-3">
+                  {filtraVolontari(volontari.autisti, searchAutista).map(
+                    (a) => (
+                      <button
+                        type="button"
+                        key={a.id}
+                        className="list-group-item list-group-item-action"
+                        onClick={() => {
+                          setForm({
+                            ...form,
+                            autista: `${a.nome} ${a.cognome}`,
+                          });
+                          setSearchAutista(`${a.nome} ${a.cognome}`);
+                          setShowAutistaDropdown(false);
+                        }}
+                      >
+                        {a.nome} {a.cognome}
+                      </button>
+                    )
+                  )}
+                </div>
+              )}
             </div>
 
-            <div className="col-md-2">
+            {/* Accompagnatore */}
+            <div className="col-md-2 position-relative">
               <input
                 className="form-control"
-                name="accompagnatore"
                 placeholder="Accompagnatore"
-                value={form.accompagnatore}
-                onChange={handleChange}
+                value={searchAccompagnatore}
+                onChange={(e) => {
+                  setSearchAccompagnatore(e.target.value);
+                  setShowAccompagnatoreDropdown(true);
+                }}
+                onFocus={() => setShowAccompagnatoreDropdown(true)}
               />
+
+              {showAccompagnatoreDropdown && searchAccompagnatore && (
+                <div className="list-group position-absolute w-100 z-3">
+                  {filtraVolontari(
+                    volontari.accompagnatori,
+                    searchAccompagnatore
+                  ).map((a) => (
+                    <button
+                      type="button"
+                      key={a.id}
+                      className="list-group-item list-group-item-action"
+                      onClick={() => {
+                        setForm({
+                          ...form,
+                          accompagnatore: `${a.nome} ${a.cognome}`,
+                        });
+                        setSearchAccompagnatore(`${a.nome} ${a.cognome}`);
+                        setShowAccompagnatoreDropdown(false);
+                      }}
+                    >
+                      {a.nome} {a.cognome}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
+            {/* Mezzo */}
             <div className="col-md-2 mt-2">
               <select
                 className="form-select"
@@ -256,7 +396,7 @@ const Homepage = () => {
                       .sort((a, b) => a.orario.localeCompare(b.orario))
                       .map((s, i) => (
                         <div key={i} className="border rounded p-2 mb-2">
-                          <strong>⏰{s.orario}</strong>
+                          <strong>⏰ {s.orario}</strong>
                           <br />♿ {s.servizio}
                           <br />
                           📍 {s.localita}
