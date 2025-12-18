@@ -39,3 +39,32 @@ tbody tr {
   background-color: #212529 !important;
   color: #fff !important;
 }
+
+/* HEADER - menu hamburger centrato */
+@media (max-width: 575.98px) {
+  .navbar-collapse {
+    text-align: center;
+  }
+
+  .navbar-nav {
+    margin: 0 auto;
+    width: 100%;
+    align-items: center;
+  }
+
+  .navbar-nav .nav-item {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 0.5rem 0;
+  }
+
+  .navbar-nav .nav-link,
+  .navbar-nav .btn {
+    text-align: center;
+  }
+
+  .navbar-nav .btn {
+    width: 200px;
+  }
+}
