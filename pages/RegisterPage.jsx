@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -14,15 +13,10 @@ const RegisterPage = () => {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      setShowModal(true);
+      navigate("/login"); 
     } catch (error) {
       alert(error.message);
     }
-  };
-
-  const goToLogin = () => {
-    setShowModal(false);
-    navigate("/login");
   };
 
   return (
@@ -50,22 +44,6 @@ const RegisterPage = () => {
 
         <button className="btn btn-primary w-100">Registrati</button>
       </form>
-
-      {/* MODAL */}
-      {showModal && (
-        <div className="modal fade show d-block">
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content text-center">
-              <div className="modal-body">
-                <p>Registrazione avvenuta con successo</p>
-                <button className="btn btn-success" onClick={goToLogin}>
-                  Vai al login
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
