@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import VolunteerSelect from "./VolunteerSelect";
 
 /* GIORNI */
@@ -18,7 +18,7 @@ const minuti5 = Array.from({ length: 12 }, (_, i) =>
   String(i * 5).padStart(2, "0")
 );
 
-const ServiceForm = ({ volontari, onAdd }) => {
+const ServiceForm = ({ volontari, onSave, editingService, onCancelEdit }) => {
   const [form, setForm] = useState({
     giorno: "Lunedì",
     orario: "",
@@ -39,20 +39,29 @@ const ServiceForm = ({ volontari, onAdd }) => {
   // Stato popup di errore
   const [showErrorModal, setShowErrorModal] = useState(false);
 
+  /* POPOLA FORM IN MODIFICA */
+  useEffect(() => {
+    if (editingService) {
+      setForm(editingService);
+      const [h, m] = editingService.orario.split(":");
+      setOraSel(h);
+      setMinSel(m);
+      setFormKey((k) => k + 1);
+    }
+  }, [editingService]);
+
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  /* AGGIUNGI */
+  /* SALVA */
   const submit = () => {
     if (Object.values(form).some((v) => !v)) {
-      // Mostra popup invece di alert
       setShowErrorModal(true);
       return;
     }
 
-    onAdd(form);
+    onSave(form);
 
-    // RESET FORM
     setForm({
       giorno: "Lunedì",
       orario: "",
@@ -65,8 +74,6 @@ const ServiceForm = ({ volontari, onAdd }) => {
 
     setOraSel("");
     setMinSel("");
-
-    // Forza Reset VolunteerSelect
     setFormKey((k) => k + 1);
   };
 
@@ -74,7 +81,8 @@ const ServiceForm = ({ volontari, onAdd }) => {
     <>
       <div className="card mb-4">
         <div className="card-body">
-          <h5>Aggiungi servizio</h5>
+          <h5>{editingService ? "Modifica servizio" : "Aggiungi servizio"}</h5>
+
           <div className="row g-2">
             {/* Giorno */}
             <div className="col-md-2">
@@ -185,11 +193,17 @@ const ServiceForm = ({ volontari, onAdd }) => {
               </select>
             </div>
 
-            {/* Bottone */}
-            <div className="col-md-2">
-              <button className="btn btn-success w-100" onClick={submit}>
-                Aggiungi
+            {/* BOTTONI */}
+            <div className="col-md-12 d-flex gap-2">
+              <button className="btn btn-success" onClick={submit}>
+                {editingService ? "Salva modifiche" : "Aggiungi"}
               </button>
+
+              {editingService && (
+                <button className="btn btn-secondary" onClick={onCancelEdit}>
+                  Annulla
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -213,7 +227,7 @@ const ServiceForm = ({ volontari, onAdd }) => {
               </div>
 
               <div className="modal-body text-center">
-                <p>Compila tutti i campi prima di aggiungere il servizio.</p>
+                <p>Compila tutti i campi prima di salvare il servizio.</p>
               </div>
 
               <div className="modal-footer justify-content-center">

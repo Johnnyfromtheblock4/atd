@@ -9,7 +9,13 @@ const giorniSettimana = [
   "Domenica",
 ];
 
-const ServiceTable = ({ servizi, settimanaCorrente, formatDate }) => {
+const ServiceTable = ({
+  servizi,
+  settimanaCorrente,
+  formatDate,
+  onEdit,
+  onDelete,
+}) => {
   return (
     <div className="table-responsive">
       <table className="table table-bordered align-middle">
@@ -65,6 +71,21 @@ const ServiceTable = ({ servizi, settimanaCorrente, formatDate }) => {
                         🧑‍🤝‍🧑 {s.accompagnatore}
                         <br />
                         🚐 {s.mezzo}
+                        {/* AZIONI */}
+                        <div className="d-flex justify-content-end gap-2 mt-2">
+                          <button
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => onEdit(s)}
+                          >
+                            Modifica
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => onDelete(s.id)}
+                          >
+                            Elimina
+                          </button>
+                        </div>
                       </div>
                     ))}
                 </td>
@@ -91,6 +112,21 @@ const ServiceTable = ({ servizi, settimanaCorrente, formatDate }) => {
                         🧑‍🤝‍🧑 {s.accompagnatore}
                         <br />
                         🚐 {s.mezzo}
+                        {/* AZIONI */}
+                        <div className="d-flex justify-content-end gap-2 mt-2">
+                          <button
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => onEdit(s)}
+                          >
+                            Modifica
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => onDelete(s.id)}
+                          >
+                            Elimina
+                          </button>
+                        </div>
                       </div>
                     ))}
                 </td>

@@ -33,20 +33,38 @@ const Homepage = () => {
     getLunedi(new Date())
   );
 
+  // Servizio in modifica
+  const [editingService, setEditingService] = useState(null);
+
   // Ref per tabella (necessario per export PDF)
   const tableRef = useRef(null);
 
-  /* AGGIUNGI SERVIZIO */
-  const aggiungiServizio = (form) => {
-    setServizi([
-      ...servizi,
-      {
-        id: Date.now(),
-        ...form,
-        fascia: getFascia(form.orario),
-        settimana: settimanaCorrente.toISOString(),
-      },
-    ]);
+  /* AGGIUNGI / MODIFICA SERVIZIO */
+  const salvaServizio = (form) => {
+    if (editingService) {
+      setServizi((prev) =>
+        prev.map((s) =>
+          s.id === editingService.id
+            ? {
+                ...editingService,
+                ...form,
+                fascia: getFascia(form.orario),
+              }
+            : s
+        )
+      );
+      setEditingService(null);
+    } else {
+      setServizi([
+        ...servizi,
+        {
+          id: Date.now(),
+          ...form,
+          fascia: getFascia(form.orario),
+          settimana: settimanaCorrente.toISOString(),
+        },
+      ]);
+    }
   };
 
   /* ELIMINA SERVIZIO */
@@ -66,8 +84,13 @@ const Homepage = () => {
         formatDate={formatDate}
       />
 
-      {/* FORM INSERIMENTO */}
-      <ServiceForm volontari={volontari} onAdd={aggiungiServizio} />
+      {/* FORM INSERIMENTO / MODIFICA */}
+      <ServiceForm
+        volontari={volontari}
+        onSave={salvaServizio}
+        editingService={editingService}
+        onCancelEdit={() => setEditingService(null)}
+      />
 
       {/* TABELLA */}
       <div ref={tableRef}>
@@ -75,6 +98,8 @@ const Homepage = () => {
           servizi={servizi}
           settimanaCorrente={settimanaCorrente}
           formatDate={formatDate}
+          onEdit={setEditingService}
+          onDelete={eliminaServizio}
         />
       </div>
 
