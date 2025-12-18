@@ -69,8 +69,7 @@ const Homepage = () => {
 
   /* ELIMINA SERVIZIO */
   const eliminaServizio = (id) => {
-    if (!window.confirm("Vuoi eliminare questo servizio?")) return;
-    setServizi(servizi.filter((s) => s.id !== id));
+    setServizi((prev) => prev.filter((s) => s.id !== id));
   };
 
   return (

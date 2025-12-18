@@ -1,9 +1,13 @@
 /* NAVIGAZIONE SETTIMANA */
-const WeekNavigator = ({ settimanaCorrente, setSettimanaCorrente, formatDate }) => {
+const WeekNavigator = ({
+  settimanaCorrente,
+  setSettimanaCorrente,
+  formatDate,
+}) => {
   return (
     <div className="d-flex justify-content-between align-items-center mb-4">
       <button
-        className="btn btn-outline-primary"
+        className="btn btn-primary"
         onClick={() =>
           setSettimanaCorrente(
             new Date(settimanaCorrente.setDate(settimanaCorrente.getDate() - 7))
@@ -13,10 +17,12 @@ const WeekNavigator = ({ settimanaCorrente, setSettimanaCorrente, formatDate }) 
         ⬅ Settimana precedente
       </button>
 
-      <strong>Settimana del {formatDate(settimanaCorrente)}</strong>
+      <strong className="text-center">
+        Settimana del {formatDate(settimanaCorrente)}
+      </strong>
 
       <button
-        className="btn btn-outline-primary"
+        className="btn btn-primary"
         onClick={() =>
           setSettimanaCorrente(
             new Date(settimanaCorrente.setDate(settimanaCorrente.getDate() + 7))
