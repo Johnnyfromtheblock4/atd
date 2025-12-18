@@ -14,7 +14,7 @@ const WeekNavigator = ({
           )
         }
       >
-        ⬅ Settimana precedente
+        <i class="fa-solid fa-arrow-left"></i> Settimana precedente
       </button>
 
       <strong className="text-center">
@@ -29,7 +29,7 @@ const WeekNavigator = ({
           )
         }
       >
-        Settimana successiva ➡
+        Settimana successiva <i class="fa-solid fa-arrow-right"></i>
       </button>
     </div>
   );
