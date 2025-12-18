@@ -1,13 +1,23 @@
 import { useState } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowModal(true);
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      setShowModal(true);
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   const goToLogin = () => {
@@ -16,36 +26,38 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "400px" }}>
-      <h2 className="mb-4 text-center">Registrazione</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label>Email</label>
-          <input type="email" className="form-control" required />
-        </div>
+    <div className="container mt-5" style={{ maxWidth: 400 }}>
+      <h2 className="text-center mb-4">Registrazione</h2>
 
-        <div className="mb-3">
-          <label>Password</label>
-          <input type="password" className="form-control" required />
-        </div>
+      <form onSubmit={handleSubmit}>
+        <input
+          className="form-control mb-3"
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <input
+          className="form-control mb-3"
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
         <button className="btn btn-primary w-100">Registrati</button>
       </form>
-      
+
       {/* MODAL */}
       {showModal && (
-        <div className="modal fade show d-block" tabIndex="-1">
+        <div className="modal fade show d-block">
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content text-center">
-              <div className="modal-header justify-content-center border-0">
-                <h5 className="modal-title">Registrazione</h5>
-              </div>
-
               <div className="modal-body">
-                <p className="mb-0">Registrazione avvenuta con successo</p>
-              </div>
-
-              <div className="modal-footer justify-content-center border-0">
+                <p>Registrazione avvenuta con successo</p>
                 <button className="btn btn-success" onClick={goToLogin}>
                   Vai al login
                 </button>

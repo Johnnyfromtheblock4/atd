@@ -1,13 +1,23 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase/firebase";
+import { useNavigate, Link } from "react-router-dom";
 
 const LoginPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowModal(true);
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      setShowModal(true);
+    } catch (error) {
+      alert("Credenziali non valide");
+    }
   };
 
   const handleClose = () => {
@@ -16,19 +26,27 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "400px" }}>
-      <h2 className="mb-4 text-center">Login</h2>
+    <div className="container mt-5" style={{ maxWidth: 400 }}>
+      <h2 className="text-center mb-4">Login</h2>
 
       <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label>Email</label>
-          <input type="email" className="form-control" required />
-        </div>
+        <input
+          className="form-control mb-3"
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-        <div className="mb-3">
-          <label>Password</label>
-          <input type="password" className="form-control" required />
-        </div>
+        <input
+          className="form-control mb-3"
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
         <button className="btn btn-primary w-100">Accedi</button>
       </form>
@@ -39,18 +57,11 @@ const LoginPage = () => {
 
       {/* MODAL */}
       {showModal && (
-        <div className="modal fade show d-block" tabIndex="-1">
+        <div className="modal fade show d-block">
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content text-center">
-              <div className="modal-header justify-content-center border-0">
-                <h5 className="modal-title">Accesso riuscito</h5>
-              </div>
-
               <div className="modal-body">
-                <p className="mb-0">Accesso avvenuto con successo</p>
-              </div>
-
-              <div className="modal-footer justify-content-center border-0">
+                <p>Accesso avvenuto con successo</p>
                 <button className="btn btn-success" onClick={handleClose}>
                   Vai alla Homepage
                 </button>
