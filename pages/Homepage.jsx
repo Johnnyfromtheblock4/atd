@@ -1,14 +1,51 @@
 import React, { useState } from "react";
 
-const giorni = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì"];
+/* GIORNI */
+const giorniLavorativi = [
+  "Lunedì",
+  "Martedì",
+  "Mercoledì",
+  "Giovedì",
+  "Venerdì",
+];
 
+const giorniSettimana = [
+  "Lunedì",
+  "Martedì",
+  "Mercoledì",
+  "Giovedì",
+  "Venerdì",
+  "Sabato",
+  "Domenica",
+];
+
+/* UTILITIES */
 const getFascia = (orario) => {
   const ora = parseInt(orario.split(":")[0], 10);
   return ora < 12 ? "mattina" : "pomeriggio";
 };
 
+const getLunedi = (date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
+};
+
+const formatDate = (date) =>
+  date.toLocaleDateString("it-IT", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+/* COMPONENTE */
 const Homepage = () => {
   const [servizi, setServizi] = useState([]);
+
+  const [settimanaCorrente, setSettimanaCorrente] = useState(
+    getLunedi(new Date())
+  );
 
   const [form, setForm] = useState({
     giorno: "Lunedì",
@@ -32,6 +69,7 @@ const Homepage = () => {
       {
         ...form,
         fascia: getFascia(form.orario),
+        settimana: settimanaCorrente.toISOString(),
       },
     ]);
 
@@ -48,7 +86,38 @@ const Homepage = () => {
 
   return (
     <div className="container my-5">
-      <h1 className="text-center mb-4">Calendario Servizi Settimanali</h1>
+      <h1 className="text-center mb-3">Calendario Servizi Settimanali</h1>
+
+      {/* NAVIGAZIONE SETTIMANA */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <button
+          className="btn btn-outline-primary"
+          onClick={() =>
+            setSettimanaCorrente(
+              new Date(
+                settimanaCorrente.setDate(settimanaCorrente.getDate() - 7)
+              )
+            )
+          }
+        >
+          ⬅ Settimana precedente
+        </button>
+
+        <strong>Settimana del {formatDate(settimanaCorrente)}</strong>
+
+        <button
+          className="btn btn-outline-primary"
+          onClick={() =>
+            setSettimanaCorrente(
+              new Date(
+                settimanaCorrente.setDate(settimanaCorrente.getDate() + 7)
+              )
+            )
+          }
+        >
+          Settimana successiva ➡
+        </button>
+      </div>
 
       {/* FORM INSERIMENTO */}
       <div className="card mb-4">
@@ -63,7 +132,7 @@ const Homepage = () => {
                 value={form.giorno}
                 onChange={handleChange}
               >
-                {giorni.map((g) => (
+                {giorniLavorativi.map((g) => (
                   <option key={g}>{g}</option>
                 ))}
               </select>
@@ -122,13 +191,19 @@ const Homepage = () => {
             </div>
 
             <div className="col-md-2 mt-2">
-              <input
-                className="form-control"
+              <select
+                className="form-select"
                 name="mezzo"
-                placeholder="Mezzo"
                 value={form.mezzo}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Mezzo</option>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="col-md-2 mt-2">
@@ -149,9 +224,18 @@ const Homepage = () => {
           <thead className="table-dark">
             <tr>
               <th>Fascia</th>
-              {giorni.map((g) => (
-                <th key={g}>{g}</th>
-              ))}
+              {giorniSettimana.map((giorno, index) => {
+                const data = new Date(settimanaCorrente);
+                data.setDate(settimanaCorrente.getDate() + index);
+
+                return (
+                  <th key={giorno} className="text-center">
+                    {giorno}
+                    <br />
+                    <small>{formatDate(data)}</small>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
 
@@ -160,23 +244,28 @@ const Homepage = () => {
               <tr key={fascia}>
                 <td className="fw-bold text-capitalize">{fascia}</td>
 
-                {giorni.map((giorno) => (
+                {giorniSettimana.map((giorno) => (
                   <td key={giorno}>
                     {servizi
-                      .filter((s) => s.giorno === giorno && s.fascia === fascia)
+                      .filter(
+                        (s) =>
+                          s.giorno === giorno &&
+                          s.fascia === fascia &&
+                          s.settimana === settimanaCorrente.toISOString()
+                      )
+                      .sort((a, b) => a.orario.localeCompare(b.orario))
                       .map((s, i) => (
                         <div key={i} className="border rounded p-2 mb-2">
-                          <strong>{s.orario}</strong>
+                          <strong>⏰{s.orario}</strong>
+                          <br />♿ {s.servizio}
                           <br />
-                          {s.servizio}
-                          <br />
-                          {s.localita}
-                          <br />
-                          🚐 {s.mezzo}
+                          📍 {s.localita}
                           <br />
                           👨‍✈️ {s.autista}
                           <br />
                           🧑‍🤝‍🧑 {s.accompagnatore}
+                          <br />
+                          🚐 {s.mezzo}
                         </div>
                       ))}
                   </td>
