@@ -4,3 +4,38 @@
   box-sizing: border-box;
   font-family: "Roboto", sans-serif;
 }
+
+/* TABELLA */
+/* Giorni feriali alternati */
+.giorno-pari td {
+  background-color: #f8f9fa;
+}
+
+.giorno-dispari td {
+  background-color: #ffffff;
+}
+
+/* Weekend */
+.giorno-weekend td {
+  background-color: #212529;
+  color: #fff;
+}
+
+/* Rafforza separazione tra giorni */
+tbody tr {
+  border-bottom: 3px solid #cccccc;
+}
+
+/* Versione PDF */
+.pdf-export .giorno-pari td {
+  background-color: #f0f0f0 !important;
+}
+
+.pdf-export .giorno-dispari td {
+  background-color: #ffffff !important;
+}
+
+.pdf-export .giorno-weekend td {
+  background-color: #212529 !important;
+  color: #fff !important;
+}

@@ -26,8 +26,16 @@ const ServiceTable = ({ servizi, settimanaCorrente, formatDate }) => {
             const data = new Date(settimanaCorrente);
             data.setDate(settimanaCorrente.getDate() + index);
 
+            // Classe riga per distinguere i giorni (feriali alternati + weekend)
+            const rowClass =
+              giorno === "Sabato" || giorno === "Domenica"
+                ? "giorno-weekend"
+                : index % 2 === 0
+                ? "giorno-pari"
+                : "giorno-dispari";
+
             return (
-              <tr key={giorno}>
+              <tr key={giorno} className={rowClass}>
                 {/* GIORNO */}
                 <td className="fw-bold">
                   {giorno}

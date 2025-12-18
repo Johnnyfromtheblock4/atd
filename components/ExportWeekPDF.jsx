@@ -1,31 +1,99 @@
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
-/*
-  Componente responsabile dell'esportazione della settimana selezionata in PDF.
-  Cattura la tabella tramite ref e genera un PDF in formato landscape.
-*/
+/* PDF Exporter */
 const ExportWeekPDF = ({ tableRef, settimanaCorrente, formatDate }) => {
   const esportaSettimanaPDF = async () => {
     if (!tableRef?.current) return;
 
-    // Cattura della tabella come canvas
+    /*
+      Forza stili più marcati solo per l'export PDF
+      (bordi visibili anche dopo la rasterizzazione)
+    */
+    tableRef.current.classList.add("pdf-export");
+
+    // Cattura tabella
     const canvas = await html2canvas(tableRef.current, {
-      scale: 2, // migliora la qualità del PDF
+      scale: 2,
+      backgroundColor: "#ffffff",
     });
+
+    // Rimuove gli stili PDF-only dopo la cattura
+    tableRef.current.classList.remove("pdf-export");
 
     const imgData = canvas.toDataURL("image/png");
 
-    // Creazione PDF in formato orizzontale
+    // PDF landscape
     const pdf = new jsPDF("landscape", "mm", "a4");
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-    // Inserimento immagine nel PDF
-    pdf.addImage(imgData, "PNG", 0, 10, pdfWidth, pdfHeight);
+    /* LOGO */
+    const logo = new Image();
+    logo.src = "/atd-logo.png";
 
-    // Nome file basato sulla settimana corrente
+    // Attendi caricamento logo
+    await new Promise((resolve) => {
+      logo.onload = resolve;
+    });
+
+    pdf.addImage(logo, "PNG", 10, 10, 30, 30);
+
+    /* TITOLO */
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(18);
+    pdf.text(
+      "Servizi Associazione Trasporto Disabili Busnago",
+      pageWidth / 2,
+      22,
+      { align: "center" }
+    );
+
+    /* SOTTOTITOLO */
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(13);
+    pdf.text(
+      `Settimana del ${formatDate(settimanaCorrente)}`,
+      pageWidth / 2,
+      30,
+      { align: "center" }
+    );
+
+    /* POSIZIONE TABELLA */
+    const tableY = 40;
+    const marginX = 10;
+    const usableWidth = pageWidth - marginX * 2;
+    const imgHeight = (canvas.height * usableWidth) / canvas.width;
+
+    /*
+      Inserimento tabella con gestione multipagina
+      jsPDF non spezza automaticamente le immagini
+    */
+    let remainingHeight = imgHeight;
+    let positionY = tableY;
+    let pageOffset = 0;
+
+    while (remainingHeight > 0) {
+      pdf.addImage(
+        imgData,
+        "PNG",
+        marginX,
+        positionY - pageOffset,
+        usableWidth,
+        imgHeight
+      );
+
+      remainingHeight -= pageHeight - positionY;
+
+      if (remainingHeight > 0) {
+        pdf.addPage();
+        pageOffset += pageHeight - positionY;
+        positionY = 10;
+      }
+    }
+
+    /* SALVATAGGIO */
     const nomeFile = `servizi_settimana_${formatDate(
       settimanaCorrente
     ).replaceAll("/", "-")}.pdf`;
