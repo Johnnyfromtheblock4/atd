@@ -75,10 +75,7 @@ const ServiceTable = ({
                   <td>
                     {servizi
                       .filter(
-                        (s) =>
-                          s.giorno === giorno &&
-                          s.fascia === "mattina" &&
-                          s.settimana === settimanaCorrente.toISOString()
+                        (s) => s.giorno === giorno && s.fascia === "mattina"
                       )
                       .sort((a, b) => a.orario.localeCompare(b.orario))
                       .map((s) => (
@@ -116,10 +113,7 @@ const ServiceTable = ({
                   <td>
                     {servizi
                       .filter(
-                        (s) =>
-                          s.giorno === giorno &&
-                          s.fascia === "pomeriggio" &&
-                          s.settimana === settimanaCorrente.toISOString()
+                        (s) => s.giorno === giorno && s.fascia === "pomeriggio"
                       )
                       .sort((a, b) => a.orario.localeCompare(b.orario))
                       .map((s) => (

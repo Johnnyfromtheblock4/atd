@@ -1,10 +1,19 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import volontari from "../data/volontari.json";
 
 import WeekNavigator from "../components/WeekNavigator";
 import ServiceForm from "../components/ServiceForm";
 import ServicesTable from "../components/ServiceTable";
 import ExportWeekPDF from "../components/ExportWeekPDF";
+
+/* FIREBASE */
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "../firebase/firebase";
+import {
+  addServizio,
+  updateServizio,
+  deleteServizio,
+} from "../firebase/services";
 
 /* UTILITIES */
 const getFascia = (orario) => {
@@ -26,6 +35,18 @@ const formatDate = (date) =>
     year: "numeric",
   });
 
+/*
+  Normalizza la settimana:
+  - usa SOLO la data del lunedì
+  - niente ore/minuti/secondi
+  - evita mismatch dopo refresh
+*/
+const normalizeLunedi = (date) => {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString().split("T")[0]; // YYYY-MM-DD
+};
+
 /* COMPONENTE */
 const Homepage = () => {
   const [servizi, setServizi] = useState([]);
@@ -39,37 +60,55 @@ const Homepage = () => {
   // Ref per tabella (necessario per export PDF)
   const tableRef = useRef(null);
 
+  /* LETTURA SERVIZI DA FIRESTORE (REALTIME) */
+  useEffect(() => {
+    const settimanaKey = normalizeLunedi(settimanaCorrente);
+
+    const q = query(
+      collection(db, "servizi"),
+      where("settimana", "==", settimanaKey)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const dati = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setServizi(dati);
+    });
+
+    return () => unsubscribe();
+  }, [settimanaCorrente]);
+
   /* AGGIUNGI / MODIFICA SERVIZIO */
-  const salvaServizio = (form) => {
-    if (editingService) {
-      setServizi((prev) =>
-        prev.map((s) =>
-          s.id === editingService.id
-            ? {
-                ...editingService,
-                ...form,
-                fascia: getFascia(form.orario),
-              }
-            : s
-        )
-      );
-      setEditingService(null);
-    } else {
-      setServizi([
-        ...servizi,
-        {
-          id: Date.now(),
-          ...form,
-          fascia: getFascia(form.orario),
-          settimana: settimanaCorrente.toISOString(),
-        },
-      ]);
+  const salvaServizio = async (form) => {
+    const payload = {
+      ...form,
+      fascia: getFascia(form.orario),
+      settimana: normalizeLunedi(settimanaCorrente),
+    };
+
+    try {
+      if (editingService) {
+        await updateServizio(editingService.id, payload);
+        setEditingService(null);
+      } else {
+        await addServizio(payload);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Errore nel salvataggio del servizio");
     }
   };
 
   /* ELIMINA SERVIZIO */
-  const eliminaServizio = (id) => {
-    setServizi((prev) => prev.filter((s) => s.id !== id));
+  const eliminaServizio = async (id) => {
+    try {
+      await deleteServizio(id);
+    } catch (error) {
+      console.error(error);
+      alert("Errore nell'eliminazione del servizio");
+    }
   };
 
   return (
