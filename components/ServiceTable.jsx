@@ -12,36 +12,36 @@ const giorniSettimana = [
 const ServiceTable = ({ servizi, settimanaCorrente, formatDate }) => {
   return (
     <div className="table-responsive">
-      <table className="table table-bordered">
+      <table className="table table-bordered align-middle">
         <thead className="table-dark">
           <tr>
-            <th>Fascia</th>
-            {giorniSettimana.map((giorno, index) => {
-              const data = new Date(settimanaCorrente);
-              data.setDate(settimanaCorrente.getDate() + index);
-              return (
-                <th key={giorno} className="text-center">
-                  {giorno}
-                  <br />
-                  <small>{formatDate(data)}</small>
-                </th>
-              );
-            })}
+            <th>Giorno</th>
+            <th className="text-center">Mattina</th>
+            <th className="text-center">Pomeriggio</th>
           </tr>
         </thead>
 
         <tbody>
-          {["mattina", "pomeriggio"].map((fascia) => (
-            <tr key={fascia}>
-              <td className="fw-bold">{fascia}</td>
+          {giorniSettimana.map((giorno, index) => {
+            const data = new Date(settimanaCorrente);
+            data.setDate(settimanaCorrente.getDate() + index);
 
-              {giorniSettimana.map((giorno) => (
-                <td key={giorno}>
+            return (
+              <tr key={giorno}>
+                {/* GIORNO */}
+                <td className="fw-bold">
+                  {giorno}
+                  <br />
+                  <small>{formatDate(data)}</small>
+                </td>
+
+                {/* MATTINA */}
+                <td>
                   {servizi
                     .filter(
                       (s) =>
                         s.giorno === giorno &&
-                        s.fascia === fascia &&
+                        s.fascia === "mattina" &&
                         s.settimana === settimanaCorrente.toISOString()
                     )
                     .sort((a, b) => a.orario.localeCompare(b.orario))
@@ -60,9 +60,35 @@ const ServiceTable = ({ servizi, settimanaCorrente, formatDate }) => {
                       </div>
                     ))}
                 </td>
-              ))}
-            </tr>
-          ))}
+
+                {/* POMERIGGIO */}
+                <td>
+                  {servizi
+                    .filter(
+                      (s) =>
+                        s.giorno === giorno &&
+                        s.fascia === "pomeriggio" &&
+                        s.settimana === settimanaCorrente.toISOString()
+                    )
+                    .sort((a, b) => a.orario.localeCompare(b.orario))
+                    .map((s) => (
+                      <div key={s.id} className="border rounded p-2 mb-2">
+                        <strong>⏰ {s.orario}</strong>
+                        <br />♿ {s.servizio}
+                        <br />
+                        📍 {s.localita}
+                        <br />
+                        👨‍✈️ {s.autista}
+                        <br />
+                        🧑‍🤝‍🧑 {s.accompagnatore}
+                        <br />
+                        🚐 {s.mezzo}
+                      </div>
+                    ))}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

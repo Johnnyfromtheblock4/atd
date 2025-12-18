@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import volontari from "../data/volontari.json";
 
 import WeekNavigator from "../components/WeekNavigator";
 import ServiceForm from "../components/ServiceForm";
 import ServicesTable from "../components/ServiceTable";
+import ExportWeekPDF from "../components/ExportWeekPDF";
 
 /* UTILITIES */
 const getFascia = (orario) => {
@@ -31,6 +32,9 @@ const Homepage = () => {
   const [settimanaCorrente, setSettimanaCorrente] = useState(
     getLunedi(new Date())
   );
+
+  // Ref per tabella (necessario per export PDF)
+  const tableRef = useRef(null);
 
   /* AGGIUNGI SERVIZIO */
   const aggiungiServizio = (form) => {
@@ -66,8 +70,17 @@ const Homepage = () => {
       <ServiceForm volontari={volontari} onAdd={aggiungiServizio} />
 
       {/* TABELLA */}
-      <ServicesTable
-        servizi={servizi}
+      <div ref={tableRef}>
+        <ServicesTable
+          servizi={servizi}
+          settimanaCorrente={settimanaCorrente}
+          formatDate={formatDate}
+        />
+      </div>
+
+      {/* ESPORTA SETTIMANA PDF */}
+      <ExportWeekPDF
+        tableRef={tableRef}
         settimanaCorrente={settimanaCorrente}
         formatDate={formatDate}
       />

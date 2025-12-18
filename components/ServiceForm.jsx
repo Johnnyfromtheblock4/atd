@@ -33,6 +33,9 @@ const ServiceForm = ({ volontari, onAdd }) => {
   const [oraSel, setOraSel] = useState("");
   const [minSel, setMinSel] = useState("");
 
+  // Reset autisti e accompagnatori
+  const [formKey, setFormKey] = useState(0);
+
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -58,13 +61,15 @@ const ServiceForm = ({ volontari, onAdd }) => {
 
     setOraSel("");
     setMinSel("");
+
+    // Forza Reset VolunteerSelect
+    setFormKey((k) => k + 1);
   };
 
   return (
     <div className="card mb-4">
       <div className="card-body">
         <h5>Aggiungi servizio</h5>
-
         <div className="row g-2">
           {/* Giorno */}
           <div className="col-md-2">
@@ -81,72 +86,87 @@ const ServiceForm = ({ volontari, onAdd }) => {
           </div>
 
           {/* Ora */}
-          <div className="col-md-2 d-flex gap-2">
-            <select
-              className="form-select"
-              value={oraSel}
-              onChange={(e) => {
-                const h = e.target.value;
-                setOraSel(h);
-                setForm({ ...form, orario: `${h}:${minSel || "00"}` });
-              }}
-            >
-              <option value="">Ora</option>
-              {ore.map((h) => (
-                <option key={h}>{h}</option>
-              ))}
-            </select>
+          <div className="col-md-4">
+            <div className="d-flex gap-2">
+              <select
+                className="form-select"
+                value={oraSel}
+                onChange={(e) => {
+                  const h = e.target.value;
+                  setOraSel(h);
+                  setForm({ ...form, orario: `${h}:${minSel || "00"}` });
+                }}
+              >
+                <option value="">Ora</option>
+                {ore.map((h) => (
+                  <option key={h}>{h}</option>
+                ))}
+              </select>
 
-            <select
-              className="form-select"
-              value={minSel}
-              disabled={!oraSel}
-              onChange={(e) => {
-                const mm = e.target.value;
-                setMinSel(mm);
-                setForm({ ...form, orario: `${oraSel}:${mm}` });
-              }}
-            >
-              <option value="">Min</option>
-              {minuti5.map((mm) => (
-                <option key={mm}>{mm}</option>
-              ))}
-            </select>
+              <select
+                className="form-select"
+                value={minSel}
+                disabled={!oraSel}
+                onChange={(e) => {
+                  const mm = e.target.value;
+                  setMinSel(mm);
+                  setForm({ ...form, orario: `${oraSel}:${mm}` });
+                }}
+              >
+                <option value="">Min</option>
+                {minuti5.map((mm) => (
+                  <option key={mm}>{mm}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          {/* Campi testo */}
-          <input
-            className="col-md-2 form-control"
-            name="servizio"
-            placeholder="Servizio"
-            value={form.servizio}
-            onChange={handleChange}
-          />
-          <input
-            className="col-md-2 form-control"
-            name="localita"
-            placeholder="Località"
-            value={form.localita}
-            onChange={handleChange}
-          />
+          {/* Servizio */}
+          <div className="col-md-12">
+            <input
+              className="form-control"
+              name="servizio"
+              placeholder="Servizio"
+              value={form.servizio}
+              onChange={handleChange}
+            />
+          </div>
 
-          {/* Autista / Accompagnatore */}
-          <VolunteerSelect
-            label="Autista"
-            list={volontari.autisti}
-            value={form.autista}
-            onSelect={(v) => setForm({ ...form, autista: v })}
-          />
+          {/* Località */}
+          <div className="col-md-12">
+            <input
+              className="form-control"
+              name="localita"
+              placeholder="Località"
+              value={form.localita}
+              onChange={handleChange}
+            />
+          </div>
 
-          <VolunteerSelect
-            label="Accompagnatore"
-            list={volontari.accompagnatori}
-            value={form.accompagnatore}
-            onSelect={(v) => setForm({ ...form, accompagnatore: v })}
-          />
+          {/* Autista */}
+          <div className="col-md-12">
+            <VolunteerSelect
+              key={`autista-${formKey}`}
+              label="Autista"
+              list={volontari.autisti}
+              value={form.autista}
+              onSelect={(v) => setForm({ ...form, autista: v })}
+            />
+          </div>
+
+          {/* Accompagnatore */}
+          <div className="col-md-12">
+            <VolunteerSelect
+              key={`accompagnatore-${formKey}`}
+              label="Accompagnatore"
+              list={volontari.accompagnatori}
+              value={form.accompagnatore}
+              onSelect={(v) => setForm({ ...form, accompagnatore: v })}
+            />
+          </div>
 
           {/* Mezzo */}
-          <div className="col-md-2">
+          <div className="col-md-12">
             <select
               className="form-select"
               name="mezzo"
@@ -160,6 +180,7 @@ const ServiceForm = ({ volontari, onAdd }) => {
             </select>
           </div>
 
+          {/* Bottone */}
           <div className="col-md-2">
             <button className="btn btn-success w-100" onClick={submit}>
               Aggiungi
