@@ -113,7 +113,7 @@ const Homepage = () => {
 
   return (
     <div className="container my-5">
-      <h1 className="text-center mb-3">Calendario Servizi Settimanali</h1>
+      <h1 className="text-center my-5">Calendario Servizi Settimanali</h1>
 
       {/* NAVIGAZIONE SETTIMANA */}
       <WeekNavigator

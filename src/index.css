@@ -5,6 +5,10 @@
   font-family: "Roboto", sans-serif;
 }
 
+.title {
+  color: #0d6efd;
+}
+
 /* TABELLA */
 /* Giorni feriali alternati */
 .giorno-pari td {

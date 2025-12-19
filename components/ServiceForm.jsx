@@ -79,10 +79,11 @@ const ServiceForm = ({ volontari, onSave, editingService, onCancelEdit }) => {
 
   return (
     <>
+      <h2 className="text-center mb-3 title">
+        {editingService ? "Modifica servizio" : "Aggiungi servizio"}
+      </h2>
       <div className="card mb-4">
         <div className="card-body">
-          <h5>{editingService ? "Modifica servizio" : "Aggiungi servizio"}</h5>
-
           <div className="row g-2">
             {/* Giorno */}
             <div className="col-md-2">

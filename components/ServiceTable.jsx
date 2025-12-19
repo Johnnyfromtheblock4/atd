@@ -39,6 +39,9 @@ const ServiceTable = ({
 
   return (
     <>
+      <div className="col-12 title mt-5">
+        <h2 className="text-center">Tabella Servizi Settimana</h2>
+      </div>
       <div className="table-responsive">
         <table className="table table-bordered align-middle">
           <thead className="table-dark">

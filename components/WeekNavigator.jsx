@@ -17,9 +17,9 @@ const WeekNavigator = ({
         <i class="fa-solid fa-arrow-left"></i> Settimana precedente
       </button>
 
-      <strong className="text-center">
+      <h5 className="text-center">
         Settimana del {formatDate(settimanaCorrente)}
-      </strong>
+      </h5>
 
       <button
         className="btn btn-primary"
