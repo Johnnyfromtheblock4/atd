@@ -221,10 +221,6 @@ const DayBlock = ({
             </tbody>
           </table>
 
-          <small className="text-muted d-block mt-2">
-            Compila una cella e poi esci dal campo (blur) per salvare. L’ultima
-            riga è sempre pronta per inserire un nuovo servizio.
-          </small>
         </div>
       </div>
     </div>

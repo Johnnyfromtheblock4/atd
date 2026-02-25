@@ -130,7 +130,6 @@ const Homepage = () => {
 
       {/* 
         FORM INSERIMENTO / MODIFICA
-        -> sostituito da WeekSheet (vista tipo Excel)
       */}
       <div ref={tableRef}>
         <WeekSheet
