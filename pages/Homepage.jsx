@@ -2,8 +2,14 @@ import React, { useState, useRef, useEffect } from "react";
 import volontari from "../data/volontari.json";
 
 import WeekNavigator from "../components/WeekNavigator";
-import ServiceForm from "../components/ServiceForm";
-import ServicesTable from "../components/ServiceTable";
+/* 
+  Tolti:
+  - ServiceForm
+  - ServicesTable
+  Aggiunto:
+  - WeekSheet (vista tipo Excel)
+*/
+import WeekSheet from "../components/WeekSheet";
 import ExportWeekPDF from "../components/ExportWeekPDF";
 
 /* FIREBASE */
@@ -51,7 +57,7 @@ const normalizeLunedi = (date) => {
 const Homepage = () => {
   const [servizi, setServizi] = useState([]);
   const [settimanaCorrente, setSettimanaCorrente] = useState(
-    getLunedi(new Date())
+    getLunedi(new Date()),
   );
 
   // Servizio in modifica
@@ -66,7 +72,7 @@ const Homepage = () => {
 
     const q = query(
       collection(db, "servizi"),
-      where("settimana", "==", settimanaKey)
+      where("settimana", "==", settimanaKey),
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -122,22 +128,19 @@ const Homepage = () => {
         formatDate={formatDate}
       />
 
-      {/* FORM INSERIMENTO / MODIFICA */}
-      <ServiceForm
-        volontari={volontari}
-        onSave={salvaServizio}
-        editingService={editingService}
-        onCancelEdit={() => setEditingService(null)}
-      />
-
-      {/* TABELLA */}
+      {/* 
+        FORM INSERIMENTO / MODIFICA
+        -> sostituito da WeekSheet (vista tipo Excel)
+      */}
       <div ref={tableRef}>
-        <ServicesTable
+        <WeekSheet
           servizi={servizi}
           settimanaCorrente={settimanaCorrente}
           formatDate={formatDate}
-          onEdit={setEditingService}
-          onDelete={eliminaServizio}
+          volontari={volontari}
+          onAdd={addServizio}
+          onUpdate={updateServizio}
+          onDelete={deleteServizio}
         />
       </div>
 
