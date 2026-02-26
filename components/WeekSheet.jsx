@@ -17,12 +17,6 @@ const getFascia = (orario) => {
   return ora < 12 ? "mattina" : "pomeriggio";
 };
 
-/*
-  Normalizza la settimana:
-  - usa SOLO la data del lunedì
-  - niente ore/minuti/secondi
-  - evita mismatch dopo refresh
-*/
 const normalizeLunedi = (date) => {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
@@ -82,8 +76,6 @@ const DayBlock = ({
       await onUpdate(next.id, payload);
     } else {
       await onAdd(payload);
-      // Non serve aggiornare lo state qui:
-      // onSnapshot aggiorna subito la lista servizi in Homepage
     }
   };
 
@@ -100,16 +92,17 @@ const DayBlock = ({
           </div>
         </div>
 
-        <div className="table-responsive">
+        <div className="table-responsive sheet-scroll">
           <table className="table table-bordered align-middle mb-0 sheet-table">
             <thead className="table-dark">
               <tr>
-                <th style={{ width: 110 }}>Orario</th>
-                <th>Servizio</th>
-                <th>Località</th>
-                <th style={{ width: 220 }}>Autista</th>
-                <th style={{ width: 220 }}>Accompagnatore</th>
-                <th style={{ width: 90 }}>Mezzo</th>
+                <th style={{ width: 120 }}>Orario</th>
+                <th style={{ width: 240 }}>Servizio</th>
+                <th style={{ width: 200 }}>Località</th>
+                <th style={{ minWidth: 240 }}>Autista</th>
+                <th style={{ minWidth: 260 }}>Accompagnatore</th>
+                <th style={{ width: 110 }}>Mezzo</th>
+
                 <th style={{ width: 90 }} className="text-center">
                   Azioni
                 </th>
@@ -122,7 +115,7 @@ const DayBlock = ({
                   <td>
                     <input
                       type="time"
-                      className="form-control form-control-sm"
+                      className="form-control form-control-sm w-100"
                       defaultValue={r.orario}
                       onBlur={(e) => saveRow(r, { orario: e.target.value })}
                     />
@@ -130,7 +123,7 @@ const DayBlock = ({
 
                   <td>
                     <input
-                      className="form-control form-control-sm"
+                      className="form-control form-control-sm w-100"
                       defaultValue={r.servizio}
                       onBlur={(e) => saveRow(r, { servizio: e.target.value })}
                       placeholder="Servizio"
@@ -139,7 +132,7 @@ const DayBlock = ({
 
                   <td>
                     <input
-                      className="form-control form-control-sm"
+                      className="form-control form-control-sm w-100"
                       defaultValue={r.localita}
                       onBlur={(e) => saveRow(r, { localita: e.target.value })}
                       placeholder="Località"
@@ -148,7 +141,7 @@ const DayBlock = ({
 
                   <td>
                     <select
-                      className="form-select form-select-sm"
+                      className="form-select form-select-sm w-100"
                       defaultValue={r.autista}
                       onChange={(e) => saveRow(r, { autista: e.target.value })}
                     >
@@ -168,7 +161,7 @@ const DayBlock = ({
 
                   <td>
                     <select
-                      className="form-select form-select-sm"
+                      className="form-select form-select-sm w-100"
                       defaultValue={r.accompagnatore}
                       onChange={(e) =>
                         saveRow(r, { accompagnatore: e.target.value })
@@ -190,7 +183,7 @@ const DayBlock = ({
 
                   <td>
                     <select
-                      className="form-select form-select-sm"
+                      className="form-select form-select-sm w-100"
                       defaultValue={r.mezzo}
                       onChange={(e) => saveRow(r, { mezzo: e.target.value })}
                     >
@@ -220,8 +213,8 @@ const DayBlock = ({
               ))}
             </tbody>
           </table>
-
         </div>
+
       </div>
     </div>
   );
@@ -238,7 +231,7 @@ const WeekSheet = ({
 }) => {
   const settimanaKey = useMemo(
     () => normalizeLunedi(settimanaCorrente),
-    [settimanaCorrente],
+    [settimanaCorrente]
   );
 
   const byDay = useMemo(() => {

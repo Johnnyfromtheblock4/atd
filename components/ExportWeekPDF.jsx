@@ -6,10 +6,6 @@ const ExportWeekPDF = ({ tableRef, settimanaCorrente, formatDate }) => {
   const esportaSettimanaPDF = async () => {
     if (!tableRef?.current) return;
 
-    /*
-      Forza stili più marcati solo per l'export PDF
-      (bordi visibili anche dopo la rasterizzazione)
-    */
     tableRef.current.classList.add("pdf-export");
 
     // Cattura tabella
@@ -66,10 +62,6 @@ const ExportWeekPDF = ({ tableRef, settimanaCorrente, formatDate }) => {
     const usableWidth = pageWidth - marginX * 2;
     const imgHeight = (canvas.height * usableWidth) / canvas.width;
 
-    /*
-      Inserimento tabella con gestione multipagina
-      jsPDF non spezza automaticamente le immagini
-    */
     let remainingHeight = imgHeight;
     let positionY = tableY;
     let pageOffset = 0;

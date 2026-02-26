@@ -4,10 +4,7 @@ const WeekNavigator = ({
   setSettimanaCorrente,
   formatDate,
 }) => {
-  /* 
-    Sposta la settimana senza mutare l'oggetto Date nello state.
-    Evita comportamenti strani dopo più click / refresh.
-  */
+
   const shiftWeek = (deltaDays) => {
     const d = new Date(settimanaCorrente);
     d.setDate(d.getDate() + deltaDays);

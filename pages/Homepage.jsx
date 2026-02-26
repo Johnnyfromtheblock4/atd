@@ -2,13 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import volontari from "../data/volontari.json";
 
 import WeekNavigator from "../components/WeekNavigator";
-/* 
-  Tolti:
-  - ServiceForm
-  - ServicesTable
-  Aggiunto:
-  - WeekSheet (vista tipo Excel)
-*/
 import WeekSheet from "../components/WeekSheet";
 import ExportWeekPDF from "../components/ExportWeekPDF";
 
@@ -41,12 +34,7 @@ const formatDate = (date) =>
     year: "numeric",
   });
 
-/*
-  Normalizza la settimana:
-  - usa SOLO la data del lunedì
-  - niente ore/minuti/secondi
-  - evita mismatch dopo refresh
-*/
+
 const normalizeLunedi = (date) => {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);

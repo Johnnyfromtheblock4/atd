@@ -44,7 +44,7 @@ tbody tr {
   color: #fff !important;
 }
 
-/* HEADER - menu hamburger centrato */
+/* HEADER - menu hamburger centrato
 @media (max-width: 575.98px) {
   .navbar-collapse {
     text-align: center;
@@ -71,7 +71,7 @@ tbody tr {
   .navbar-nav .btn {
     width: 200px;
   }
-}
+} */
 
 /* WEEK SHEET (vista tipo Excel) */
 .day-vertical {
@@ -90,3 +90,43 @@ tbody tr {
 .sheet-table th {
   vertical-align: middle;
 }
+
+/* 
+  Scroll orizzontale tipo Excel:
+  se lo schermo è piccolo, la tabella resta su una riga e si scorre a destra
+*/
+.sheet-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* tabella "larga": non deve restringersi troppo */
+.sheet-table {
+  table-layout: fixed;
+  min-width: 1370px; /* coerente con le width/minWidth delle colonne */
+}
+
+/* WEEK SHEET: header e celle sempre su una riga (niente a capo) */
+.sheet-table th,
+.sheet-table td {
+  white-space: nowrap;
+}
+
+/* Input e select sempre "ordinati" dentro la cella */
+.sheet-table input.form-control-sm,
+.sheet-table select.form-select-sm {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* WEEK SHEET: evita che la freccia "stringa" troppo il testo */
+.sheet-table select.form-select-sm {
+  padding-right: 2.5rem; /* più spazio per la freccia */
+}
+
+/* 
+  Se vuoi vedere più testo nei select senza puntini, usa clip.
+  (Lasciato disattivato perché preferivi non strabordare)
+*/
+/* .sheet-table select.form-select-sm { text-overflow: clip; } */
