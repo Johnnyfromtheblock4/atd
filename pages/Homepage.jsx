@@ -16,8 +16,12 @@ import {
 
 /* UTILITIES */
 const getFascia = (orario) => {
-  const ora = parseInt(orario.split(":")[0], 10);
-  return ora <= 13 ? "mattina" : "pomeriggio";
+  const [hStr = "0", mStr = "0"] = (orario || "").split(":");
+  const h = parseInt(hStr, 10);
+  const m = parseInt(mStr, 10);
+  const total = h * 60 + m;
+
+  return total < 13 * 60 ? "mattina" : "pomeriggio";
 };
 
 const getLunedi = (date) => {

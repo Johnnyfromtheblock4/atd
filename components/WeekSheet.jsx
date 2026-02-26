@@ -11,8 +11,12 @@ const giorniSettimana = [
 
 /* UTILITIES */
 const getFascia = (orario) => {
-  const ora = parseInt(orario?.split(":")?.[0] || "0", 10);
-  return ora <= 13 ? "mattina" : "pomeriggio";
+  const [hStr = "0", mStr = "0"] = (orario || "").split(":");
+  const h = parseInt(hStr, 10);
+  const m = parseInt(mStr, 10);
+  const total = h * 60 + m;
+
+  return total < 13 * 60 ? "mattina" : "pomeriggio";
 };
 
 const normalizeLunedi = (date) => {
@@ -31,6 +35,15 @@ const emptyRow = (giorno) => ({
   accompagnatore: "",
   mezzo: "",
 });
+
+/* ORARIO (select ore/minuti a step 5) */
+const oreOptions = Array.from({ length: 24 }, (_, i) =>
+  String(i).padStart(2, "0"),
+);
+
+const minutiOptions = Array.from({ length: 12 }, (_, i) =>
+  String(i * 5).padStart(2, "0"),
+);
 
 /* MODAL CONFERMA ELIMINAZIONE */
 const ConfirmDeleteModal = ({ open, servizioName, onCancel, onConfirm }) => {
@@ -173,7 +186,7 @@ const DayBlock = ({
           <table className="table table-bordered align-middle mb-0 sheet-table">
             <thead className="table-dark">
               <tr>
-                <th style={{ width: 120 }}>Orario</th>
+                <th style={{ width: 160 }}>Orario</th>
                 <th style={{ width: 150 }}>Servizio</th>
                 <th style={{ width: 150 }}>Località</th>
                 <th style={{ width: 190 }}>Autista</th>
@@ -196,18 +209,54 @@ const DayBlock = ({
               {allRows.map((r, idx) => {
                 const fascia = r.orario ? getFascia(r.orario) : "";
 
+                const [hh = "", mm = ""] = (r.orario || "").split(":");
+
                 return (
                   <tr
                     key={r.id ?? `new-${idx}`}
                     className={fascia ? `fascia-${fascia}` : ""}
                   >
                     <td>
-                      <input
-                        type="time"
-                        className="form-control form-control-sm w-100"
-                        defaultValue={r.orario}
-                        onBlur={(e) => saveRow(r, { orario: e.target.value })}
-                      />
+                      {/* ORARIO (solo minuti a step 5) */}
+                      <div className="d-flex gap-1">
+                        <select
+                          className="form-select form-select-sm"
+                          value={hh}
+                          onChange={(e) => {
+                            const hour = e.target.value;
+                            const minute = mm || "00";
+                            const nextOrario =
+                              hour && minute ? `${hour}:${minute}` : "";
+                            saveRow(r, { orario: nextOrario });
+                          }}
+                        >
+                          <option value="">--</option>
+                          {oreOptions.map((h) => (
+                            <option key={h} value={h}>
+                              {h}
+                            </option>
+                          ))}
+                        </select>
+
+                        <select
+                          className="form-select form-select-sm"
+                          value={mm}
+                          onChange={(e) => {
+                            const minute = e.target.value;
+                            const hour = hh || "00";
+                            const nextOrario =
+                              hour && minute ? `${hour}:${minute}` : "";
+                            saveRow(r, { orario: nextOrario });
+                          }}
+                        >
+                          <option value="">--</option>
+                          {minutiOptions.map((m) => (
+                            <option key={m} value={m}>
+                              {m}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </td>
 
                     <td>
@@ -238,7 +287,9 @@ const DayBlock = ({
                       >
                         <option value="">—</option>
                         {autistiList.map((a) => {
-                          const label = `${a.nome}${a.cognome ? " " + a.cognome : ""}`;
+                          const label = `${a.nome}${
+                            a.cognome ? " " + a.cognome : ""
+                          }`;
                           return (
                             <option key={a.id} value={label}>
                               {label}
@@ -258,7 +309,9 @@ const DayBlock = ({
                       >
                         <option value="">—</option>
                         {accompagnatoriList.map((a) => {
-                          const label = `${a.nome}${a.cognome ? " " + a.cognome : ""}`;
+                          const label = `${a.nome}${
+                            a.cognome ? " " + a.cognome : ""
+                          }`;
                           return (
                             <option key={a.id} value={label}>
                               {label}
