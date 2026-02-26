@@ -7,14 +7,12 @@ const giorniSettimana = [
   "Mercoledì",
   "Giovedì",
   "Venerdì",
-  "Sabato",
-  "Domenica",
 ];
 
 /* UTILITIES */
 const getFascia = (orario) => {
   const ora = parseInt(orario?.split(":")?.[0] || "0", 10);
-  return ora < 12 ? "mattina" : "pomeriggio";
+  return ora <= 13 ? "mattina" : "pomeriggio";
 };
 
 const normalizeLunedi = (date) => {
@@ -102,6 +100,11 @@ const DayBlock = ({
                 <th style={{ width: 190 }}>Autista</th>
                 <th style={{ width: 220 }}>Accompagnatore</th>
 
+                {/* Orario duplicato prima del mezzo */}
+                <th style={{ width: 90 }} className="text-center">
+                  Orario
+                </th>
+
                 <th style={{ width: 90 }}>Mezzo</th>
 
                 <th style={{ width: 70 }} className="text-center">
@@ -111,107 +114,121 @@ const DayBlock = ({
             </thead>
 
             <tbody>
-              {allRows.map((r, idx) => (
-                <tr key={r.id ?? `new-${idx}`}>
-                  <td>
-                    <input
-                      type="time"
-                      className="form-control form-control-sm w-100"
-                      defaultValue={r.orario}
-                      onBlur={(e) => saveRow(r, { orario: e.target.value })}
-                    />
-                  </td>
+              {allRows.map((r, idx) => {
+                const fascia = r.orario ? getFascia(r.orario) : "";
 
-                  <td>
-                    <input
-                      className="form-control form-control-sm w-100"
-                      defaultValue={r.servizio}
-                      onBlur={(e) => saveRow(r, { servizio: e.target.value })}
-                      placeholder="Servizio"
-                    />
-                  </td>
+                return (
+                  <tr
+                    key={r.id ?? `new-${idx}`}
+                    className={fascia ? `fascia-${fascia}` : ""}
+                  >
+                    <td>
+                      <input
+                        type="time"
+                        className="form-control form-control-sm w-100"
+                        defaultValue={r.orario}
+                        onBlur={(e) => saveRow(r, { orario: e.target.value })}
+                      />
+                    </td>
 
-                  <td>
-                    <input
-                      className="form-control form-control-sm w-100"
-                      defaultValue={r.localita}
-                      onBlur={(e) => saveRow(r, { localita: e.target.value })}
-                      placeholder="Località"
-                    />
-                  </td>
+                    <td>
+                      <input
+                        className="form-control form-control-sm w-100"
+                        defaultValue={r.servizio}
+                        onBlur={(e) => saveRow(r, { servizio: e.target.value })}
+                        placeholder="Servizio"
+                      />
+                    </td>
 
-                  <td>
-                    <select
-                      className="form-select form-select-sm w-100"
-                      defaultValue={r.autista}
-                      onChange={(e) => saveRow(r, { autista: e.target.value })}
-                    >
-                      <option value="">—</option>
-                      {autistiList.map((a) => {
-                        const label = `${a.nome}${
-                          a.cognome ? " " + a.cognome : ""
-                        }`;
-                        return (
-                          <option key={a.id} value={label}>
-                            {label}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </td>
+                    <td>
+                      <input
+                        className="form-control form-control-sm w-100"
+                        defaultValue={r.localita}
+                        onBlur={(e) => saveRow(r, { localita: e.target.value })}
+                        placeholder="Località"
+                      />
+                    </td>
 
-                  <td>
-                    <select
-                      className="form-select form-select-sm w-100"
-                      defaultValue={r.accompagnatore}
-                      onChange={(e) =>
-                        saveRow(r, { accompagnatore: e.target.value })
-                      }
-                    >
-                      <option value="">—</option>
-                      {accompagnatoriList.map((a) => {
-                        const label = `${a.nome}${
-                          a.cognome ? " " + a.cognome : ""
-                        }`;
-                        return (
-                          <option key={a.id} value={label}>
-                            {label}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </td>
-
-                  <td>
-                    <select
-                      className="form-select form-select-sm w-100"
-                      defaultValue={r.mezzo}
-                      onChange={(e) => saveRow(r, { mezzo: e.target.value })}
-                    >
-                      <option value="">—</option>
-                      {[1, 2, 3, 4, 5].map((n) => (
-                        <option key={n} value={String(n)}>
-                          {n}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-
-                  <td className="text-center">
-                    {r.id ? (
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => onDelete(r.id)}
-                        title="Elimina"
+                    <td>
+                      <select
+                        className="form-select form-select-sm w-100"
+                        defaultValue={r.autista}
+                        onChange={(e) =>
+                          saveRow(r, { autista: e.target.value })
+                        }
                       >
-                        🗑
-                      </button>
-                    ) : (
-                      <span className="text-muted">✍️</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                        <option value="">—</option>
+                        {autistiList.map((a) => {
+                          const label = `${a.nome}${
+                            a.cognome ? " " + a.cognome : ""
+                          }`;
+                          return (
+                            <option key={a.id} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </td>
+
+                    <td>
+                      <select
+                        className="form-select form-select-sm w-100"
+                        defaultValue={r.accompagnatore}
+                        onChange={(e) =>
+                          saveRow(r, { accompagnatore: e.target.value })
+                        }
+                      >
+                        <option value="">—</option>
+                        {accompagnatoriList.map((a) => {
+                          const label = `${a.nome}${
+                            a.cognome ? " " + a.cognome : ""
+                          }`;
+                          return (
+                            <option key={a.id} value={label}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </td>
+
+                    {/* Orario duplicato prima del mezzo */}
+                    <td className="text-center fw-semibold">
+                      {r.orario || "—"}
+                    </td>
+
+                    <td>
+                      <select
+                        className="form-select form-select-sm w-100"
+                        defaultValue={r.mezzo}
+                        onChange={(e) => saveRow(r, { mezzo: e.target.value })}
+                      >
+                        <option value="">—</option>
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <option key={n} value={String(n)}>
+                            {n}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+
+                    <td className="text-center">
+                      {r.id ? (
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => onDelete(r.id)}
+                          title="Elimina"
+                        >
+                          🗑
+                        </button>
+                      ) : (
+                        <span className="text-muted">✍️</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

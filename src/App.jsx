@@ -12,9 +12,9 @@ function App() {
         <Routes>
           <Route path="/" element={<DefaultLayout />}>
             <Route index element={<Homepage />} />
-            <Route path="contatti" element={<Contatti />} />
+            {/* <Route path="contatti" element={<Contatti />} />
             <Route path="login" element={<LoginPage />} />
-            <Route path="registrati" element={<RegisterPage />} />
+            <Route path="registrati" element={<RegisterPage />} /> */}
           </Route>
         </Routes>
       </BrowserRouter>

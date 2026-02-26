@@ -17,7 +17,7 @@ import {
 /* UTILITIES */
 const getFascia = (orario) => {
   const ora = parseInt(orario.split(":")[0], 10);
-  return ora < 12 ? "mattina" : "pomeriggio";
+  return ora <= 13 ? "mattina" : "pomeriggio";
 };
 
 const getLunedi = (date) => {
@@ -33,7 +33,6 @@ const formatDate = (date) =>
     month: "2-digit",
     year: "numeric",
   });
-
 
 const normalizeLunedi = (date) => {
   const d = new Date(date);
