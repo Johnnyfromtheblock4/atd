@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import VolunteerSelect from "./VolunteerSelect";
 
 /* TABELLA */
 const giorniSettimana = [
@@ -134,8 +135,16 @@ const DayBlock = ({
   // gestione modal dal parent
   onRequestDelete,
 }) => {
-  const autistiList = volontari?.autisti || [];
-  const accompagnatoriList = volontari?.accompagnatori || [];
+  // Supporta sia:
+  // 1) volontari = { autisti: [], accompagnatori: [] }
+  // 2) volontari = [] (array unico già "flattened")
+  const autistiList = Array.isArray(volontari)
+    ? volontari
+    : volontari?.autisti || [];
+
+  const accompagnatoriList = Array.isArray(volontari)
+    ? volontari
+    : volontari?.accompagnatori || [];
 
   // Righe Firestore + 1 riga vuota sempre pronta
   const allRows = [...rows, emptyRow(giorno)];
@@ -211,6 +220,10 @@ const DayBlock = ({
 
                 const [hh = "", mm = ""] = (r.orario || "").split(":");
 
+                // id univoci per datalist (per riga e colonna)
+                const dlAutista = `dl-autista-${settimanaKey}-${giorno}-${idx}`;
+                const dlAcc = `dl-acc-${settimanaKey}-${giorno}-${idx}`;
+
                 return (
                   <tr
                     key={r.id ?? `new-${idx}`}
@@ -278,47 +291,25 @@ const DayBlock = ({
                     </td>
 
                     <td>
-                      <select
-                        className="form-select form-select-sm w-100"
-                        defaultValue={r.autista}
-                        onChange={(e) =>
-                          saveRow(r, { autista: e.target.value })
-                        }
-                      >
-                        <option value="">—</option>
-                        {autistiList.map((a) => {
-                          const label = `${a.nome}${
-                            a.cognome ? " " + a.cognome : ""
-                          }`;
-                          return (
-                            <option key={a.id} value={label}>
-                              {label}
-                            </option>
-                          );
-                        })}
-                      </select>
+                      {/* AUTISTA con filtro iniziale cognome (input unico) */}
+                      <VolunteerSelect
+                        label="Autista"
+                        list={autistiList}
+                        value={r.autista}
+                        datalistId={dlAutista}
+                        onSelect={(val) => saveRow(r, { autista: val })}
+                      />
                     </td>
 
                     <td>
-                      <select
-                        className="form-select form-select-sm w-100"
-                        defaultValue={r.accompagnatore}
-                        onChange={(e) =>
-                          saveRow(r, { accompagnatore: e.target.value })
-                        }
-                      >
-                        <option value="">—</option>
-                        {accompagnatoriList.map((a) => {
-                          const label = `${a.nome}${
-                            a.cognome ? " " + a.cognome : ""
-                          }`;
-                          return (
-                            <option key={a.id} value={label}>
-                              {label}
-                            </option>
-                          );
-                        })}
-                      </select>
+                      {/* ACCOMPAGNATORE con filtro iniziale cognome (input unico) */}
+                      <VolunteerSelect
+                        label="Accompagnatore"
+                        list={accompagnatoriList}
+                        value={r.accompagnatore}
+                        datalistId={dlAcc}
+                        onSelect={(val) => saveRow(r, { accompagnatore: val })}
+                      />
                     </td>
 
                     {/* Orario duplicato prima del mezzo */}

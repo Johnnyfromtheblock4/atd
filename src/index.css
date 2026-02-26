@@ -74,7 +74,7 @@ tbody tr {
 /* tabella "larga": non deve restringersi troppo */
 .sheet-table {
   table-layout: fixed;
-  min-width: 940px; /* adeguato alle nuove width (non 1370) */
+  min-width: 1100px; /* aumentata per evitare taglio nomi */
 }
 
 /* WEEK SHEET: header e celle sempre su una riga (niente a capo) */
@@ -111,4 +111,39 @@ tbody tr {
   writing-mode: horizontal-tb !important;
   transform: none !important;
   padding: 6px 10px !important;
+}
+
+/* --- FIX: nomi Autista/Accompagnatore tagliati --- */
+
+/* allarga le colonne Autista + Accompagnatore */
+.sheet-table th:nth-child(4),
+.sheet-table td:nth-child(4) {
+  width: 260px;
+}
+
+.sheet-table th:nth-child(5),
+.sheet-table td:nth-child(5) {
+  width: 320px;
+}
+
+/* input dentro celle autista/accompagnatore: usa tutta la cella */
+.sheet-table td:nth-child(4) .form-control,
+.sheet-table td:nth-child(5) .form-control {
+  width: 100%;
+  min-width: 0;
+  padding-right: 0.75rem;
+}
+
+/* se il nome è troppo lungo, mostra puntini invece di taglio brutto */
+.sheet-table td:nth-child(4) .form-control,
+.sheet-table td:nth-child(5) .form-control {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* campo volontari: niente bootstrap grid dentro <td> */
+.volunteer-select {
+  width: 100%;
+  min-width: 0;
 }
