@@ -2,4 +2,4 @@
 
 -No Sabato / Domenica
 -Colori mattina e pomeriggio
--Larghezza colonne
+-Orario anche a destra 

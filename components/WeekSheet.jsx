@@ -97,13 +97,14 @@ const DayBlock = ({
             <thead className="table-dark">
               <tr>
                 <th style={{ width: 120 }}>Orario</th>
-                <th style={{ width: 240 }}>Servizio</th>
-                <th style={{ width: 200 }}>Località</th>
-                <th style={{ minWidth: 240 }}>Autista</th>
-                <th style={{ minWidth: 260 }}>Accompagnatore</th>
-                <th style={{ width: 110 }}>Mezzo</th>
+                <th style={{ width: 150 }}>Servizio</th>
+                <th style={{ width: 150 }}>Località</th>
+                <th style={{ width: 190 }}>Autista</th>
+                <th style={{ width: 220 }}>Accompagnatore</th>
 
-                <th style={{ width: 90 }} className="text-center">
+                <th style={{ width: 90 }}>Mezzo</th>
+
+                <th style={{ width: 70 }} className="text-center">
                   Azioni
                 </th>
               </tr>
@@ -214,7 +215,6 @@ const DayBlock = ({
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
   );
@@ -231,7 +231,7 @@ const WeekSheet = ({
 }) => {
   const settimanaKey = useMemo(
     () => normalizeLunedi(settimanaCorrente),
-    [settimanaCorrente]
+    [settimanaCorrente],
   );
 
   const byDay = useMemo(() => {
