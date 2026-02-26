@@ -12,12 +12,11 @@ const ExportWeekPDF = ({ tableRef, settimanaCorrente, formatDate }) => {
     const canvas = await html2canvas(tableRef.current, {
       scale: 2,
       backgroundColor: "#ffffff",
+      useCORS: true,
     });
 
     // Rimuove gli stili PDF-only dopo la cattura
     tableRef.current.classList.remove("pdf-export");
-
-    const imgData = canvas.toDataURL("image/png");
 
     // PDF landscape
     const pdf = new jsPDF("landscape", "mm", "a4");
@@ -32,8 +31,10 @@ const ExportWeekPDF = ({ tableRef, settimanaCorrente, formatDate }) => {
     // Attendi caricamento logo
     await new Promise((resolve) => {
       logo.onload = resolve;
+      logo.onerror = resolve; // evita blocchi se il logo non carica
     });
 
+    /* HEADER */
     pdf.addImage(logo, "PNG", 10, 10, 30, 30);
 
     /* TITOLO */
@@ -43,7 +44,7 @@ const ExportWeekPDF = ({ tableRef, settimanaCorrente, formatDate }) => {
       "Servizi Associazione Trasporto Disabili Busnago",
       pageWidth / 2,
       22,
-      { align: "center" }
+      { align: "center" },
     );
 
     /* SOTTOTITOLO */
@@ -53,41 +54,82 @@ const ExportWeekPDF = ({ tableRef, settimanaCorrente, formatDate }) => {
       `Settimana del ${formatDate(settimanaCorrente)}`,
       pageWidth / 2,
       30,
-      { align: "center" }
+      { align: "center" },
     );
 
     /* POSIZIONE TABELLA */
-    const tableY = 40;
+    const topY = 40; // dove inizia la tabella sotto header
     const marginX = 10;
-    const usableWidth = pageWidth - marginX * 2;
-    const imgHeight = (canvas.height * usableWidth) / canvas.width;
+    const bottomMargin = 10;
 
-    let remainingHeight = imgHeight;
-    let positionY = tableY;
-    let pageOffset = 0;
+    const usableWidthMm = pageWidth - marginX * 2;
+    const usableHeightMm = pageHeight - topY - bottomMargin;
 
-    while (remainingHeight > 0) {
-      pdf.addImage(
-        imgData,
-        "PNG",
-        marginX,
-        positionY - pageOffset,
-        usableWidth,
-        imgHeight
+    // Conversione px -> mm (in base a quanto scalata l'immagine nel PDF)
+    const mmPerPx = usableWidthMm / canvas.width;
+    const sliceHeightPx = Math.floor(usableHeightMm / mmPerPx);
+
+    let yPx = 0;
+    let pageIndex = 0;
+
+    while (yPx < canvas.height) {
+      // crea una fetta di canvas per questa pagina
+      const sliceCanvas = document.createElement("canvas");
+      sliceCanvas.width = canvas.width;
+      sliceCanvas.height = Math.min(sliceHeightPx, canvas.height - yPx);
+
+      const ctx = sliceCanvas.getContext("2d");
+      ctx.drawImage(
+        canvas,
+        0,
+        yPx,
+        canvas.width,
+        sliceCanvas.height,
+        0,
+        0,
+        canvas.width,
+        sliceCanvas.height,
       );
 
-      remainingHeight -= pageHeight - positionY;
+      const imgData = sliceCanvas.toDataURL("image/png");
 
-      if (remainingHeight > 0) {
+      // nuova pagina (non per la prima)
+      if (pageIndex > 0) {
         pdf.addPage();
-        pageOffset += pageHeight - positionY;
-        positionY = 10;
+
+        // (opzionale) ripetere header su ogni pagina:
+        pdf.addImage(logo, "PNG", 10, 10, 30, 30);
+
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(18);
+        pdf.text(
+          "Servizi Associazione Trasporto Disabili Busnago",
+          pageWidth / 2,
+          22,
+          { align: "center" },
+        );
+
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(13);
+        pdf.text(
+          `Settimana del ${formatDate(settimanaCorrente)}`,
+          pageWidth / 2,
+          30,
+          { align: "center" },
+        );
       }
+
+      const sliceHeightMm = sliceCanvas.height * mmPerPx;
+
+      pdf.addImage(imgData, "PNG", marginX, topY, usableWidthMm, sliceHeightMm);
+
+      yPx += sliceHeightPx;
+      pageIndex += 1;
     }
 
     /* SALVATAGGIO */
     const nomeFile = `servizi_settimana_${formatDate(
-      settimanaCorrente
+      settimanaCorrente,
     ).replaceAll("/", "-")}.pdf`;
 
     pdf.save(nomeFile);

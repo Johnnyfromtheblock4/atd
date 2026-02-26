@@ -105,3 +105,10 @@ tbody tr {
 .pdf-export .fascia-pomeriggio td {
   background-color: #fff3cd !important;
 }
+
+/* Versione PDF: evita scritta verticale/ruotata nel riquadro del giorno */
+.pdf-export .day-vertical {
+  writing-mode: horizontal-tb !important;
+  transform: none !important;
+  padding: 6px 10px !important;
+}
