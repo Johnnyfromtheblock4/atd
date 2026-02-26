@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 
 /* TABELLA */
 const giorniSettimana = [
@@ -32,6 +32,82 @@ const emptyRow = (giorno) => ({
   mezzo: "",
 });
 
+/* MODAL CONFERMA ELIMINAZIONE */
+const ConfirmDeleteModal = ({ open, servizioName, onCancel, onConfirm }) => {
+  useEffect(() => {
+    if (!open) return;
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") onCancel();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, onCancel]);
+
+  if (!open) return null;
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="modal-backdrop fade show"
+        onClick={onCancel}
+        style={{ cursor: "pointer" }}
+      />
+
+      {/* Modal */}
+      <div
+        className="modal fade show d-block"
+        role="dialog"
+        aria-modal="true"
+        tabIndex={-1}
+      >
+        <div
+          className="modal-dialog modal-dialog-centered"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="modal-content shadow-lg">
+            <div className="modal-header">
+              <h5 className="modal-title">Conferma eliminazione</h5>
+              <button
+                type="button"
+                className="btn-close"
+                aria-label="Chiudi"
+                onClick={onCancel}
+              />
+            </div>
+
+            <div className="modal-body">
+              <p className="mb-0">
+                Sei sicuro che vuoi eliminare il{" "}
+                <span className="fw-bold">"{servizioName}"</span>?
+              </p>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={onCancel}
+              >
+                Annulla
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={onConfirm}
+              >
+                Elimina
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
 const DayBlock = ({
   giorno,
   dateLabel,
@@ -41,6 +117,9 @@ const DayBlock = ({
   onAdd,
   onUpdate,
   onDelete,
+
+  // gestione modal dal parent
+  onRequestDelete,
 }) => {
   const autistiList = volontari?.autisti || [];
   const accompagnatoriList = volontari?.accompagnatori || [];
@@ -159,9 +238,7 @@ const DayBlock = ({
                       >
                         <option value="">—</option>
                         {autistiList.map((a) => {
-                          const label = `${a.nome}${
-                            a.cognome ? " " + a.cognome : ""
-                          }`;
+                          const label = `${a.nome}${a.cognome ? " " + a.cognome : ""}`;
                           return (
                             <option key={a.id} value={label}>
                               {label}
@@ -181,9 +258,7 @@ const DayBlock = ({
                       >
                         <option value="">—</option>
                         {accompagnatoriList.map((a) => {
-                          const label = `${a.nome}${
-                            a.cognome ? " " + a.cognome : ""
-                          }`;
+                          const label = `${a.nome}${a.cognome ? " " + a.cognome : ""}`;
                           return (
                             <option key={a.id} value={label}>
                               {label}
@@ -217,7 +292,7 @@ const DayBlock = ({
                       {r.id ? (
                         <button
                           className="btn btn-sm btn-danger"
-                          onClick={() => onDelete(r.id)}
+                          onClick={() => onRequestDelete(r)}
                           title="Elimina"
                         >
                           🗑
@@ -266,6 +341,17 @@ const WeekSheet = ({
     return map;
   }, [servizi]);
 
+  // Stato modal: riga selezionata per eliminazione
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const servizioName = (deleteTarget?.servizio || "").trim() || "servizio";
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget?.id) return;
+    await onDelete(deleteTarget.id);
+    setDeleteTarget(null);
+  };
+
   return (
     <div className="mt-4">
       {giorniSettimana.map((giorno, index) => {
@@ -283,9 +369,18 @@ const WeekSheet = ({
             onAdd={onAdd}
             onUpdate={onUpdate}
             onDelete={onDelete}
+            onRequestDelete={(row) => setDeleteTarget(row)}
           />
         );
       })}
+
+      {/* Popup custom conferma eliminazione */}
+      <ConfirmDeleteModal
+        open={!!deleteTarget}
+        servizioName={servizioName}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 };
