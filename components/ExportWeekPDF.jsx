@@ -34,45 +34,60 @@ const ExportWeekPDF = ({ tableRef, settimanaCorrente, formatDate }) => {
       logo.onerror = resolve; // evita blocchi se il logo non carica
     });
 
-    /* HEADER */
-    pdf.addImage(logo, "PNG", 10, 10, 30, 30);
+    /* HEADER (solo prima pagina) */
+    const drawHeader = () => {
+      pdf.addImage(logo, "PNG", 10, 10, 30, 30);
 
-    /* TITOLO */
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(18);
-    pdf.text(
-      "Servizi Associazione Trasporto Disabili Busnago",
-      pageWidth / 2,
-      22,
-      { align: "center" },
-    );
+      /* TITOLO */
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(18);
+      pdf.text(
+        "Servizi Associazione Trasporto Disabili Busnago",
+        pageWidth / 2,
+        22,
+        { align: "center" },
+      );
 
-    /* SOTTOTITOLO */
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(13);
-    pdf.text(
-      `Settimana del ${formatDate(settimanaCorrente)}`,
-      pageWidth / 2,
-      30,
-      { align: "center" },
-    );
+      /* SOTTOTITOLO */
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(13);
+      pdf.text(
+        `Settimana del ${formatDate(settimanaCorrente)}`,
+        pageWidth / 2,
+        30,
+        { align: "center" },
+      );
+    };
 
     /* POSIZIONE TABELLA */
-    const topY = 40; // dove inizia la tabella sotto header
+    const headerHeight = 40; // dove inizia la tabella sotto header (solo pag.1)
+    const topYFirstPage = headerHeight;
+    const topYOtherPages = 10; // sulle altre pagine niente header: usiamo più spazio
     const marginX = 10;
-    const bottomMargin = 10;
+    const bottomMargin = 14; // un po' più spazio per il numero pagina
 
     const usableWidthMm = pageWidth - marginX * 2;
-    const usableHeightMm = pageHeight - topY - bottomMargin;
 
     // Conversione px -> mm (in base a quanto scalata l'immagine nel PDF)
     const mmPerPx = usableWidthMm / canvas.width;
-    const sliceHeightPx = Math.floor(usableHeightMm / mmPerPx);
 
     let yPx = 0;
     let pageIndex = 0;
 
     while (yPx < canvas.height) {
+      const isFirstPage = pageIndex === 0;
+
+      // nuova pagina (non per la prima)
+      if (pageIndex > 0) {
+        pdf.addPage();
+      }
+
+      // header SOLO in prima pagina
+      const topY = isFirstPage ? topYFirstPage : topYOtherPages;
+      const usableHeightMm = pageHeight - topY - bottomMargin;
+
+      const sliceHeightPx = Math.floor(usableHeightMm / mmPerPx);
+
       // crea una fetta di canvas per questa pagina
       const sliceCanvas = document.createElement("canvas");
       sliceCanvas.width = canvas.width;
@@ -92,39 +107,30 @@ const ExportWeekPDF = ({ tableRef, settimanaCorrente, formatDate }) => {
       );
 
       const imgData = sliceCanvas.toDataURL("image/png");
-
-      // nuova pagina (non per la prima)
-      if (pageIndex > 0) {
-        pdf.addPage();
-
-        // (opzionale) ripetere header su ogni pagina:
-        pdf.addImage(logo, "PNG", 10, 10, 30, 30);
-
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(18);
-        pdf.text(
-          "Servizi Associazione Trasporto Disabili Busnago",
-          pageWidth / 2,
-          22,
-          { align: "center" },
-        );
-
-        pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(13);
-        pdf.text(
-          `Settimana del ${formatDate(settimanaCorrente)}`,
-          pageWidth / 2,
-          30,
-          { align: "center" },
-        );
-      }
-
       const sliceHeightMm = sliceCanvas.height * mmPerPx;
 
+      // disegna header solo prima pagina
+      if (isFirstPage) {
+        drawHeader();
+      }
+
+      // disegna immagine tabella
       pdf.addImage(imgData, "PNG", marginX, topY, usableWidthMm, sliceHeightMm);
 
       yPx += sliceHeightPx;
       pageIndex += 1;
+    }
+
+    /* NUMERO PAGINA (tutte le pagine, in basso centrato) */
+    const totalPages = pdf.getNumberOfPages();
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+
+    for (let i = 1; i <= totalPages; i++) {
+      pdf.setPage(i);
+      pdf.text(`${i} / ${totalPages}`, pageWidth / 2, pageHeight - 7, {
+        align: "center",
+      });
     }
 
     /* SALVATAGGIO */
