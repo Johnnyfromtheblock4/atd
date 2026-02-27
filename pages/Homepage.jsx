@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import volontari from "../data/volontari.json";
-
 import WeekNavigator from "../components/WeekNavigator";
 import WeekSheet from "../components/WeekSheet";
 import ExportWeekPDF from "../components/ExportWeekPDF";
