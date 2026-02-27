@@ -147,3 +147,51 @@ tbody tr {
   width: 100%;
   min-width: 0;
 }
+
+
+/* ========= MOBILE / SM ========= */
+@media (max-width: 576px) {
+  /* riduci testo e padding della tabella */
+  .sheet-table th,
+  .sheet-table td {
+    font-size: 12px;
+    padding: 0.35rem 0.4rem;
+  }
+
+  /* riduci i controlli nella tabella */
+  .sheet-table .form-control.form-control-sm,
+  .sheet-table .form-select.form-select-sm {
+    font-size: 12px;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  /* colonna Accompagnatore meno larga su mobile */
+  .sheet-table th:nth-child(5),
+  .sheet-table td:nth-child(5) {
+    width: 220px;
+  }
+
+  /* (opzionale) anche Autista un po' più stretta */
+  .sheet-table th:nth-child(4),
+  .sheet-table td:nth-child(4) {
+    width: 200px;
+  }
+
+  /* navigator: bottoni più piccoli */
+  .week-nav .btn {
+    font-size: 12px;
+    padding: 0.35rem 0.5rem;
+  }
+
+  /* titolo centrale più piccolo */
+  .week-nav h5 {
+    font-size: 14px;
+    margin: 0;
+  }
+
+  /* (opzionale) nascondi il testo e lascia solo le icone per risparmiare spazio */
+  .week-nav .btn .btn-text {
+    display: none;
+  }
+}

@@ -142,7 +142,7 @@ const ExportWeekPDF = ({ tableRef, settimanaCorrente, formatDate }) => {
   };
 
   return (
-    <div className="text-end mt-3 col-12 text-center">
+    <div className="text-end my-5 col-12 text-center">
       <button className="btn btn-success" onClick={esportaSettimanaPDF}>
         Esporta settimana in PDF
       </button>

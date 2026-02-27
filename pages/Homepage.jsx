@@ -109,8 +109,15 @@ const Homepage = () => {
   };
 
   return (
-    <div className="container my-5">
-      <h1 className="text-center my-5">Calendario Servizi Settimanali</h1>
+    <div className="container">
+      <h1 className="text-center my-3">Calendario Servizi Settimanali</h1>
+
+      {/* ESPORTA SETTIMANA PDF */}
+      <ExportWeekPDF
+        tableRef={tableRef}
+        settimanaCorrente={settimanaCorrente}
+        formatDate={formatDate}
+      />
 
       {/* NAVIGAZIONE SETTIMANA */}
       <WeekNavigator
@@ -133,13 +140,6 @@ const Homepage = () => {
           onDelete={deleteServizio}
         />
       </div>
-
-      {/* ESPORTA SETTIMANA PDF */}
-      <ExportWeekPDF
-        tableRef={tableRef}
-        settimanaCorrente={settimanaCorrente}
-        formatDate={formatDate}
-      />
     </div>
   );
 };

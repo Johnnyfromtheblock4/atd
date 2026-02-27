@@ -4,7 +4,7 @@ const Header = () => {
   return (
     <div className="container">
       <div className="row justify-content-center">
-        <div className="col-12 text-center">
+        <div className="col-12 text-center mt-3">
           <img
             src="/atd-logo.png"
             alt="Logo ATD"
